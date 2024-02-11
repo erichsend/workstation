@@ -5,83 +5,37 @@ users:
     groups: sudo, docker
     shell: /usr/bin/zsh
     ssh_authorized_keys:
-      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCxyz...yourkeyhere...
-    lock_passwd: true
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDQyXtmrbFlbKDPwbr23OWYwZaOxt3s/dBbuU36l6RdM/EvqyLzNpEWwtz+xQYESV+jDtL33kYIDVWBaqklj+ejmZlpo6vK3yMEDA9+/FRRphpG0T+oGE0QYyS4FHo8xFQogHH5oEE5dAbASdKqYF4FhlGhDIg5/U4PuVKqNkQ3dz5eIG7CpSvGoxIB9lNEp8xTi8FamqqKcqZQAuUEN9ASUDwt71JhIVLaGCdgiMlxLYxmtKU+WMypGE/R8yTGBmlK+0i24adBpM867mNheSNulhqLZbvvbTYYjXUJst48nTHLAM/XdHatP70QSR2gNC6if4+ozj4F/9rw7u4zfNu+HF+bQ4Zme7kwALbh8TJXyy/9XOhspu00ML9vvJPFa2LjIAr5EtpnXdOLkGR1qzlu8tOOOKGetBhwGfUSTf/MVRQCWj+i8hQmIS/SQdzpJtvzVIfeLXltOTaTe+G7s5+NUQIcVs2GTi/JiTJygBbyuqyysBSgdJXBGAb0Gv5EKyjSxiEEtCUsEscp6pEdmzpTLl6VC8ow5NH9O6WtFHBI6AlPZPgYETXsnBmLNN8KdMsqYbPW/eSXhYgOK4VugwqEffO3Cr/eQ9e7iAqnF6KeW9OjNwXDTzEBpr2u/6H59mL63/G1h9VrA+4Wqux1LkTD36LVdUFqs/xe7O8ttrYQKQ== david.erichsen@konghq.com
 package_update: true
 package_upgrade: true
 packages:
-  - apache2-utils
-  - build-essential
-  - ca-certificates
-  - clang
   - cmake
-  - curl
   - direnv
-  - dnsutils
   - docker.io
   - fd-find
-  - gdb
-  - git
-  - gnupg
-  - gnupg2
-  - htop
-  - hugo
-  - ipcalc
+  - g++
+  - gettext
   - jq
-  - less
-  - libclang-dev
-  - liblzma-dev
-  - libpq-dev
-  - libprotoc-dev
-  - libsqlite3-dev
-  - libssl-dev
-  - libvirt-clients
-  - libvirt-daemon-system
-  - lldb
-  - locales
-  - man
   - mosh
-  - mtr-tiny
-  - musl-tools
-  - ncdu
-  - netcat-openbsd
-  - openssh-server
-  - pkg-config
-  - protobuf-compiler
-  - pwgen
-  - python
-  - python3
-  - python3-flake8
-  - python3-pip
-  - python3-setuptools
-  - python3-venv
-  - python3-wheel
-  - qemu-kvm
-  - qrencode
-  - quilt
+  - ninja-build
   - ripgrep
-  - shellcheck
+  - snapd
   - socat
   - software-properties-common
-  - sqlite3
-  - stow
-  - sudo
-  - tig
-  - tmate
   - tmux
-  - tree
   - unzip
-  - wget
-  - zgen
   - zip
-  - zlib1g-dev
   - zsh
 write_files:
   - path: /etc/motd
     content: |
-      Welcome to your server, Dave!
+      We're waiting..
 runcmd:
-  - ["usermod", "-s", "/usr/bin/zsh", "dave"]
-  - curl -o /root/bootstrap.sh https://example.com/path/to/bootstrap.sh
+  - curl -o "/root/bootstrap.sh" "https://raw.githubusercontent.com/erichsend/workstation/main/bootstrap.sh"
   - chmod +x /root/bootstrap.sh
   - /root/bootstrap.sh
+  - curl -o "/home/dave/bootstrap-user.sh" "https://raw.githubusercontent.com/erichsend/workstation/main/bootstrap-user.sh"
+  - chmod +x /home/dave/bootstrap-user.sh
+  - chown dave:dave /home/dave/bootstrap-user.sh
+  # - sudo -u dave -- /home/dave/bootstrap-user.sh
+  # - ["usermod", "-s", "/usr/bin/zsh", dave"]

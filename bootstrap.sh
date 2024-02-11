@@ -1,45 +1,35 @@
 #!/bin/bash
 
-set -eu
-export DEBIAN_FRONTEND=noninteractive
-
-# install Go
-if ! [ -x "$(command -v go)" ]; then
-  export GO_VERSION="1.14.2"
-  wget "https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz" 
-  tar -C /usr/local -xzf "go${GO_VERSION}.linux-amd64.tar.gz" 
-  rm -f "go${GO_VERSION}.linux-amd64.tar.gz"
-  export PATH="/usr/local/go/bin:$PATH"
+if [ ! -x "$(command -v node)" ]; then
+	curl -fsSL https://deb.nodesource.com/setup_20.x | bash - &&
+		apt-get install -y nodejs
 fi
 
-# install 1password
-if ! [ -x "$(command -v op)" ]; then
-  export OP_VERSION="v0.5.6-003"
-  curl -sS -o 1password.zip https://cache.agilebits.com/dist/1P/op/pkg/${OP_VERSION}/op_linux_amd64_${OP_VERSION}.zip
-  unzip 1password.zip op -d /usr/local/bin
-  rm -f 1password.zip
+# fzf -- completions added in zsh customization -- works manually.
+if [ ! -d "/opt/fzf" ]; then
+	git clone https://github.com/junegunn/fzf /opt/fzf
+	pushd /opt/fzf
+	./install --key-bindings --completion --no-update-rc --no-bash --no-fish
+	ln -s /opt/fzf/bin/fzf /usr/local/bin/fzf
+	popd
 fi
 
-# install protobuf
-if ! [ -x "$(command -v protoc)" ]; then
-  export PROTOBUF_VERSION="3.8.0"
-  mkdir -p protobuf_install 
-  pushd protobuf_install
-  wget https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOBUF_VERSION}/protoc-${PROTOBUF_VERSION}-linux-x86_64.zip
-  unzip protoc-${PROTOBUF_VERSION}-linux-x86_64.zip
-  mv bin/protoc /usr/local/bin
-  mv include/* /usr/local/include/
-  popd
-  rm -rf protobuf_install
-for ((i = 0; i < 10; i++)); do
-  echo "$i"
-done
-
-if [ ! -d "${HOME}/.fzf" ]; then
-  echo " ==> Installing fzf"
-  git clone https://github.com/junegunn/fzf "${HOME}/.fzf"
-  pushd "${HOME}/.fzf"
-  git remote set-url origin git@github.com:junegunn/fzf.git 
-  ${HOME}/.fzf/install --bin --64 --no-bash --no-zsh --no-fish
-  popd
+# 1password
+if [ ! -x "$(command -v op)" ]; then
+	curl -sS https://downloads.1password.com/linux/keys/1password.asc |
+		gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg
+	echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" |
+		tee /etc/apt/sources.list.d/1password.list
+	mkdir -p /etc/debsig/policies/AC2D62742012EA22/
+	curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol |
+		tee /etc/debsig/policies/AC2D62742012EA22/1password.pol
+	mkdir -p /usr/share/debsig/keyrings/AC2D62742012EA22
+	curl -sS https://downloads.1password.com/linux/keys/1password.asc |
+		gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg
+	apt update && apt install 1password-cli
 fi
+
+sudo snap install nvim --classic
+# sudo snap install go --classic ## Should download and install on user to make GOPATH more portable
+# sudo snap install k9s          ## Doesn't work on hetzner
+# sudo snap install lazygit      ## Installs but doesn't seem to start on hetzner
